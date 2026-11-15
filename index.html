@@ -149,17 +149,21 @@ const CAT={
   sectional:{n:'Sectional sofa',t:'Sofa',k:'sofa',w:91,d:38,c:'Seating'}, chaise:{n:'Sectional chaise',t:'Chaise',k:'sofa',w:38,d:51,c:'Seating'},
   sofa:{n:'Straight sofa',t:'Sofa',k:'sofa',w:84,d:36,c:'Seating'}, loveseat:{n:'Loveseat',t:'Loveseat',k:'sofa',w:60,d:36,c:'Seating'},
   armchair:{n:'Armchair',t:'',k:'sofa',w:32,d:32,c:'Seating'}, chair:{n:'Chair',t:'',k:'wood',w:18,d:18,c:'Seating'},
+  mirra:{n:'Herman Miller Mirra',t:'',k:'ochair',w:27,d:27,c:'Seating'},
   ottoman:{n:'Ottoman',t:'',k:'sofa0',w:24,d:24,c:'Seating'},
   dining:{n:'Dining table',t:'Dining',k:'wood',w:48,d:24,c:'Tables'}, dining6:{n:'Dining table for 6',t:'Dining',k:'wood',w:72,d:36,c:'Tables'},
   round:{n:'Round table',t:'Table',k:'round',w:42,d:42,c:'Tables'}, desk:{n:'Desk',t:'Desk',k:'desk',w:60,d:28,c:'Tables'},
   ikeadesk:{n:'IKEA desk 200×60',t:'IKEA desk',k:'mdesk',w:78.75,d:23.6,c:'Tables'},
   ldesk:{n:'Glass L desk',t:'L desk',k:'ldesk',w:83.5,d:48,leg:24,c:'Tables'},
+  endtable:{n:'End table',t:'',k:'wood',w:18,d:18,c:'Tables'},
   coffee:{n:'Coffee table',t:'Coffee',k:'wood',w:44,d:22,c:'Tables'},
+  tvdresser:{n:'Low dresser + TV',t:'TV dresser',k:'tvdresser',w:60,d:18,c:'Storage'},
+  rack:{n:'Clothing rack',t:'Rack',k:'rack',w:40,d:18,c:'Storage'},
   dresser:{n:'Dresser',t:'Dresser',k:'wood',w:48,d:16,c:'Storage'}, bookshelf:{n:'Bookshelf',t:'Shelf',k:'wood',w:36,d:12,c:'Storage'},
   wardrobe:{n:'Wardrobe',t:'Wardrobe',k:'wood',w:40,d:22,c:'Storage'},
   tv55:{n:'55″ TV',t:'55″',k:'tv',w:49,d:16,c:'Media & decor',f:'tv'}, tv65:{n:'65″ TV',t:'65″',k:'tv',w:57,d:16,c:'Media & decor',f:'tv'},
   tv75:{n:'75″ TV',t:'75″',k:'tv',w:66,d:16,c:'Media & decor',f:'tv'}, tv85:{n:'85″ TV',t:'85″',k:'tv',w:75,d:16,c:'Media & decor',f:'tv'},
-  rug:{n:'Rug 5×8',t:'Rug',k:'rug',w:96,d:60,c:'Media & decor'}, plant:{n:'Plant',t:'',k:'plant',w:16,d:16,c:'Media & decor'},
+  rug:{n:'Rug 5×8',t:'Rug',k:'rug',w:96,d:60,c:'Media & decor'}, plant:{n:'Plant',t:'',k:'plant',w:16,d:16,c:'Media & decor'}, trash:{n:'Garbage can',t:'',k:'trash',w:16,d:12,c:'Media & decor'},
   custom:{n:'Custom piece',t:'Custom',k:'wood',w:36,d:24}
 };
 const P=(type,x,y,rot=0,o={})=>({type,x,y,rot,...o});
@@ -169,8 +173,8 @@ B1.presets={
   king:{name:'King bedroom',items:[...B1_LIVING,P('king',174,40),P('nightstand',127,9,90),P('nightstand',221,9,90)]},
   desk:{name:'Desk nook',items:[P('sofa',18,66.5,270,{w:70}),P('desk',72,12,0,{w:48,d:24}),P('chair',72,34),P('tv55',105.5,60,90),
     P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]},
-  ldesk:{name:'L desk office',items:[P('sofa',18,66.5,270,{w:70}),P('ldesk',70.25,24),P('chair',58,36),P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]},
-  ikea:{name:'IKEA triple monitor',items:[P('sofa',18,66.5,270,{w:70}),P('ikeadesk',70,11.8),P('chair',70,34),P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]}
+  ldesk:{name:'L desk office',items:[P('sofa',18,66.5,270,{w:70}),P('ldesk',70.25,24),P('mirra',58,38),P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]},
+  ikea:{name:'IKEA triple monitor',items:[P('sofa',18,66.5,270,{w:70}),P('ikeadesk',70,11.8),P('mirra',70,38),P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]}
 };
 /* ---------- State ---------- */
 const $=s=>document.querySelector(s), svg=$('#plan'), dock=$('#dock'), scrim=$('#scrim');
@@ -230,6 +234,11 @@ function shape(it){
     return R(x,y,w,d,'#f1ece2',1.5,st)+`<path d="M-18 ${y0}Q0 ${y0-2.5} 18 ${y0}" ${m}/><path d="M-19 ${y0+.6}L${-19-sx} ${y0+12.6}M19 ${y0+.6}L${19+sx} ${y0+12.6}" ${m}/>`}
   if(k==='ldesk'){const l=def(it).leg;
     return`<path d="M${x} ${y}H${x+w}V${y+d}H${x+w-l}V${y+l}H${x}Z" fill="#cfe1e1" fill-opacity=".85" ${st} stroke-linejoin="round"/><path d="M${x+w-l} ${y+l}L${x+w} ${y}" stroke="#8fa9a9" stroke-width=".6" fill="none"/>`}
+  if(k==='tvdresser')return R(x,y,w,d,'#8f4f2f',1.5,st)+R(x+(w-49)/2,y+2,49,3.5,INK,1)+`<path d="M${x+w/3} ${y+d-3}V${y+d}M${x+2*w/3} ${y+d-3}V${y+d}" ${st} fill="none"/>`;
+  if(k==='rack'){let h='';for(let i=x+4;i<=x+w-4;i+=4)h+=`M${i} ${y+3}V${y+d-3}`;
+    return R(x,y,w,d,'#efe9df',1.5,st+' fill-opacity=".7"')+`<path d="${h}" stroke="#8d8478" stroke-width=".7" fill="none"/><path d="M${x+1} 0H${x+w-1}" stroke="${INK}" stroke-width="1.6" stroke-linecap="round" fill="none"/>`}
+  if(k==='ochair')return`<circle r="${w/2}" fill="#fff" fill-opacity=".01" stroke="#6f675d" stroke-width=".6" stroke-dasharray="2 2"/>`+R(-10,-8,20,19,'#3b4042',5,st)+`<path d="M-10 -11Q0 -15 10 -11" stroke="${INK}" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M-12.5 -3V7M12.5 -3V7" stroke="${INK}" stroke-width="1.8" stroke-linecap="round" fill="none"/>`;
+  if(k==='trash')return R(x,y,w,d,'#a3aba8',3,st)+R(x+2,y+2,w-4,d-4,'none',2,`stroke="${INK}" stroke-width=".5"`);
   if(k==='round')return`<circle r="${w/2}" fill="#8f4f2f" ${st}/>`;
   if(k==='plant')return`<circle r="${w/2}" fill="#4d7a5c" ${st}/><circle r="${w/4}" fill="#2f4a3f"/>`;
   if(k==='rug')return R(x,y,w,d,'#c9b79c',2,`stroke="#9a8667" stroke-width=".8" opacity=".75"`)+R(x+4,y+4,w-8,d-8,'none',1,`stroke="#9a8667" stroke-width=".8" stroke-dasharray="3 3"`);
@@ -239,8 +248,8 @@ function label(it){
   const t=it.name?it.name:def(it).t;if(!t)return'';
   const a=box(it),bw=a[2]-a[0],bh=a[3]-a[1],est=t.length*3.1+2,k=def(it).k;
   let r;if(est<=bw)r=-it.rot;else if(est<=bh)r=-it.rot-90;else return'';
-  const light=k==='bed'||k==='tv'||k==='rug'||k==='mdesk'||k==='ldesk';
-  const ty=k==='tv'?2.8:k==='mdesk'?5:k==='ldesk'?-D(it)/2+def(it).leg/2:0;
+  const light=k==='bed'||k==='tv'||k==='rug'||k==='mdesk'||k==='ldesk'||k==='rack';
+  const ty=k==='rack'?-5:k==='tv'?2.8:k==='tvdresser'?3:k==='mdesk'?5:k==='ldesk'?-D(it)/2+def(it).leg/2:0;
   return`<text transform="translate(0 ${ty}) ${it.flip?'scale(-1 1) ':''}rotate(${it.flip?-r:r})" text-anchor="middle" dominant-baseline="central" font-size="5.2" font-weight="500" fill="${light?INK:'#f4f0e7'}" pointer-events="none">${esc(t)}</text>`;
 }
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
