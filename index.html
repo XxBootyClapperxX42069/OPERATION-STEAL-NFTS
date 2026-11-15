@@ -41,7 +41,7 @@ h1{font:600 24px/1.1 var(--display);margin:2px 0 0;text-wrap:balance}
 .chip{flex:none;height:40px;padding:0 16px;border-radius:20px;background:var(--panel);white-space:nowrap;font-weight:500}
 .chip[aria-pressed="true"]{background:var(--accent)}
 .chip.save{background:var(--gold);color:var(--ink)}
-.chip.pick{background:none;border:1px solid var(--gold);color:var(--gold)}
+.chip.pick{display:grid;place-items:center;background:none;border:1px solid var(--gold);color:var(--gold)}
 
 .stage{flex:1;min-height:0;position:relative;margin-inline:max(8px,env(safe-area-inset-left,0px)) max(8px,env(safe-area-inset-right,0px));
   background:var(--paper);border-radius:18px;overflow:hidden}
@@ -133,17 +133,7 @@ const B1={id:'b1',name:'B1 Jr. 1 bed',chip:'B1 · 396 sq ft',size:'396 sq ft int
   DOORS:[{r:[298,102,330,134],n:'the entry door'},{r:[261,98,293,120],n:'the bathroom door'},{r:[184.5,137,299.5,149],n:'the closet and laundry doors'}],
   ROOMS:[[0,0,300,172],[300,98,330,149],[-86,22,-10,138]],
   VIEWS:{all:[-92,-16,436,204],living:[-8,-6,130,160],bed:[110,-6,128,118]}};
-/* Original plan: no size given, scaled from the queen bed in the first screenshot. */
-const ORIG={id:'orig',name:'Original 1 bed',chip:'Original · ~570 sq ft',size:'about 570 sq ft, estimated from the bed',first:'wall',thinName:'the closet',
-  WALLS:[[0,0,106,0],[0,0,0,137],[0,137,59,137],[59,137,59,147],[59,183,59,316],[59,316,324,316],[324,60,324,316],
-  [106,60,324,60],[106,0,106,60],[59,199,98,199],[98,199,98,244],[59,244,102,244],[132,244,177,244],[139,199,177,199],
-  [139,199,139,244],[177,244,177,251],[177,283,177,316],[177,199,184,199],[216,199,324,199],[216,199,216,232]],THIN:[[177,201,177,244],[216,232,324,232],[294,199,294,232]],SOLID:[],GLASS:[],
-  FIX:[{r:[4,4,102,26],n:'the kitchen counter'},{r:[4,26,26,94],n:'the kitchen counter'},{r:[4,96,36,134],n:'the fridge'},
-  {r:[66,208,92,236],n:'the washer/dryer'},{r:[62,250,92,312],n:'the tub'},{r:[108,286,122,306],n:'the toilet'},{r:[132,290,174,313],n:'the vanity'}],
-  DOORS:[{r:[59,147,95,183],n:'the entry door'},{r:[184,167,216,199],n:'the bedroom door'},{r:[184,201,216,225],n:'the bedroom door'},
-  {r:[179,251,203,283],n:'the bathroom door'},{r:[102,216,132,244],n:'the bathroom door'}],
-  ROOMS:[[0,0,106,137],[59,60,324,316]],VIEWS:{all:[-8,-8,340,332],living:[52,52,280,156],bed:[170,192,162,132]}};
-const PLANS={b1:B1,orig:ORIG};
+const PLANS={b1:B1};
 let plan=B1,BLOCK=[];
 function usePlan(id){plan=PLANS[id]||B1;
   BLOCK=[...plan.WALLS.map(s=>({r:segRect(s,4),n:'a wall'})),...plan.SOLID.map(r=>({r,n:'a wall'})),...plan.GLASS.map(r=>({r,n:'the glass wall'})),
@@ -171,16 +161,6 @@ const CAT={
   custom:{n:'Custom piece',t:'Custom',k:'wood',w:36,d:24}
 };
 const P=(type,x,y,rot=0,o={})=>({type,x,y,rot,...o});
-const BEDROOM_Q=[P('queen',245,281,270),P('nightstand',214,242),P('dresser',312,281,90)];
-ORIG.presets={
-  wall:{name:'Along the wall',items:[P('desk',158,77,0,{w:96,d:26}),P('chair',158,101),P('dining',174,133),P('chair',183,111),P('chair',166,155),
-    P('tv65',270,71),P('sectional',274.5,177,180),P('chaise',301,132.5,180),...BEDROOM_Q]},
-  split:{name:'Split the room',items:[P('tv65',313,121,90),P('sectional',215,121,270),P('chaise',259.5,94.5,270),P('desk',150,77,0,{w:72,d:26}),
-    P('chair',150,101),P('dining',140,165),P('chair',140,143),P('chair',140,187),...BEDROOM_Q]},
-  king:{name:'King suite',items:[P('tv65',270,189,180),P('sectional',274.5,81,0),P('chaise',301,125.5,0),P('desk',160,77,0,{w:96,d:26}),
-    P('chair',160,101),P('dining',140,165),P('chair',140,143),P('chair',140,187),P('king',282,274,90)]}
-};
-
 const B1_LIVING=[P('rug',60,64,90),P('sofa',18,66.5,270,{w:70}),P('armchair',63,16),P('coffee',62,68,90),P('tv55',105.5,54,90)];
 B1.presets={
   builder:{name:'Builder plan',items:[...B1_LIVING,P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]},
@@ -250,22 +230,6 @@ function label(it){
   return`<text transform="translate(0 ${k==='tv'?2.8:0}) rotate(${r})" text-anchor="middle" dominant-baseline="central" font-size="5.2" font-weight="500" fill="${light?INK:'#f4f0e7'}" pointer-events="none">${esc(t)}</text>`;
 }
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-ORIG.art=function(h){const{fr,fx,txt,dr}=h,FIX=this.FIX;let s='';
-  s+=fr([26,26,104,135],'#e6d9c6')+fr([61,246,175,314],'#d5e0da')+fr([61,201,96,242],'#e6d9c6')+fr([141,201,175,242],'#e6d9c6')
-    +fr([179,201,322,314],'#ebe4d8')+fr([218,201,322,231],'#e6d9c6');
-  s+=txt('Kitchen',68,84,9,6)+txt('Entry',96,166,6)+txt('Living',120,188,6)+txt('Bath',128,272,6)+txt('Bedroom',262,246,8,6)+txt('Closet',268,219,5)+txt('Closet',158,224,4,2);
-  // fixtures
-  s+=fr(FIX[0].r,'#f8f5ee',fx)+fr([50,7,74,23],'#f8f5ee',fx)+`<ellipse cx="62" cy="15" rx="7" ry="4.5" fill="#f8f5ee" ${fx}/>`+fr([78,7,98,23],'#f8f5ee',fx)+`<circle cx="88" cy="15" r="3.5" fill="#f8f5ee" ${fx}/>`;
-  s+=fr(FIX[1].r,'#f8f5ee',fx)+fr([5,52,25,80],'#f8f5ee',fx)+[[10,59],[20,59],[10,72],[20,72]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#f8f5ee" ${fx}/>`).join('');
-  s+=fr(FIX[2].r,'#f8f5ee',fx)+`<path d="M12 96V134" ${fx} fill="none"/>`;
-  s+=fr(FIX[3].r,'#f8f5ee',fx)+`<circle cx="79" cy="224" r="5" fill="#f8f5ee" ${fx}/><text x="79" y="215" font-size="4" text-anchor="middle" fill="${INK}">W/D</text>`;
-  s+=`<rect x="62" y="250" width="30" height="62" rx="6" fill="#f8f5ee" ${fx}/><ellipse cx="77" cy="281" rx="8" ry="13" fill="#f8f5ee" ${fx}/>`;
-  s+=`<rect x="109" y="286" width="12" height="8" rx="2" fill="#f8f5ee" ${fx}/><ellipse cx="115" cy="299" rx="5.5" ry="7" fill="#f8f5ee" ${fx}/>`;
-  s+=fr(FIX[6].r,'#f8f5ee',fx)+`<circle cx="153" cy="301" r="2.5" fill="#f8f5ee" ${fx}/>`;
-  // doors
-    s+=`<path d="M59 147H95A36 36 0 0 1 59 183" ${dr}/><path d="M216 199V167A32 32 0 0 0 184 199" ${dr}/>`
-    +`<path d="M102 244V274A30 30 0 0 0 132 244" ${dr}/><path d="M177 251H145A32 32 0 0 0 177 283" ${dr}/>`;
-  return s};
 B1.art=function(h){const{fr,fx,txt,dr}=h;let s='';
   const lab=(t,x,y)=>`<text x="${x}" y="${y}" font-size="4.5" text-anchor="middle" fill="${INK}" pointer-events="none">${t}</text>`;
   s+=fr([-86,22,-10,138],'#ece6da',`stroke="#6f675d" stroke-width="1"`)+fr([-83,25,-10,135],'none',`stroke="#6f675d" stroke-width=".5"`);
@@ -333,7 +297,7 @@ function renderDock(){
 }
 const mine=s=>(s.plan||'orig')===plan.id;
 function renderLayouts(){
-  $('#layouts').innerHTML=`<button class="chip pick" data-a="plan">${plan.chip} ▾</button>`+Object.entries(plan.presets).map(([k,p])=>`<button class="chip" data-p="${k}" aria-pressed="${layout===k}">${p.name}</button>`).join('')
+  $('#layouts').innerHTML=`<span class="chip pick">${plan.chip}</span>`+Object.entries(plan.presets).map(([k,p])=>`<button class="chip" data-p="${k}" aria-pressed="${layout===k}">${p.name}</button>`).join('')
     +saved.map((s,i)=>mine(s)&&`<button class="chip" data-s="${i}" aria-pressed="${layout===s.name}">${esc(s.name)}</button>`).filter(Boolean).join('')
     +`<button class="chip save" data-a="save">+ Save</button>`;
 }
