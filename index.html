@@ -177,7 +177,7 @@ B1.presets={
   king:{name:'King bedroom',items:[...B1_LIVING,P('king',174,40),P('nightstand',127,9,90),P('nightstand',221,9,90)]},
   desk:{name:'Desk nook',items:[P('sofa',18,66.5,270,{w:70}),P('desk',72,12,0,{w:48,d:24}),P('chair',72,34),P('tv55',105.5,60,90),
     P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]},
-  ldesk:{name:'L desk office',items:[P('sofa',18,66.5,270,{w:70}),P('ldesk',70.25,24),P('mirra',58,38),P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]},
+  ldesk:{name:'L desk office',items:[P('loveseat',18,78,270),P('ldesk',70.25,24),P('mirra',72,38),P('tvdresser',104.5,58,90),P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]},
   ikea:{name:'IKEA triple monitor',items:[P('sofa',18,66.5,270,{w:70}),P('ikeadesk',70,11.8),P('mirra',70,38),P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]}
 };
 /* ---------- State ---------- */
@@ -192,7 +192,7 @@ const nameOf=it=>it.name||def(it).n;
 const box=it=>{const s=it.rot%180!==0,hw=(s?D(it):W(it))/2,hh=(s?W(it):D(it))/2;return[it.x-hw,it.y-hh,it.x+hw,it.y+hh]};
 function parts(it){const df=def(it);if(df.k!=='ldesk')return[box(it)];
   const w=W(it),d=D(it),l=df.leg,f=it.flip?-1:1;
-  return[[-w/2,-d/2,w/2,-d/2+l],[w/2-l,-d/2+l,w/2,d/2]].map(r=>{
+  return[[-w/2,-d/2,w/2,-d/2+l],[-w/2,-d/2+l,-w/2+l,d/2]].map(r=>{
     const q=[[r[0]*f,r[1]],[r[2]*f,r[3]]].map(([x,y])=>it.rot===90?[-y,x]:it.rot===180?[-x,-y]:it.rot===270?[y,-x]:[x,y]);
     return[it.x+Math.min(q[0][0],q[1][0]),it.y+Math.min(q[0][1],q[1][1]),it.x+Math.max(q[0][0],q[1][0]),it.y+Math.max(q[0][1],q[1][1])]})}
 const hit=(a,b,e=.5)=>a[0]<b[2]-e&&a[2]>b[0]+e&&a[1]<b[3]-e&&a[3]>b[1]+e;
@@ -237,7 +237,7 @@ function shape(it){
   if(k==='mdesk'){const y0=y+4,sx=24.1*Math.cos(Math.PI/6),m=`stroke="${INK}" stroke-width="2.2" stroke-linecap="round" fill="none"`;
     return R(x,y,w,d,'#f1ece2',1.5,st)+`<path d="M-18 ${y0}Q0 ${y0-2.5} 18 ${y0}" ${m}/><path d="M-19 ${y0+.6}L${-19-sx} ${y0+12.6}M19 ${y0+.6}L${19+sx} ${y0+12.6}" ${m}/>`}
   if(k==='ldesk'){const l=def(it).leg;
-    return`<path d="M${x} ${y}H${x+w}V${y+d}H${x+w-l}V${y+l}H${x}Z" fill="#cfe1e1" fill-opacity=".85" ${st} stroke-linejoin="round"/><path d="M${x+w-l} ${y+l}L${x+w} ${y}" stroke="#8fa9a9" stroke-width=".6" fill="none"/>`}
+    return`<path d="M${x} ${y}H${x+w}V${y+l}H${x+l}V${y+d}H${x}Z" fill="#cfe1e1" fill-opacity=".85" ${st} stroke-linejoin="round"/><path d="M${x+l} ${y+l}L${x} ${y}" stroke="#8fa9a9" stroke-width=".6" fill="none"/>`}
   if(k==='tvdresser')return R(x,y,w,d,'#8f4f2f',1.5,st)+R(x+(w-49)/2,y+2,49,3.5,INK,1)+`<path d="M${x+w/3} ${y+d-3}V${y+d}M${x+2*w/3} ${y+d-3}V${y+d}" ${st} fill="none"/>`;
   if(k==='rack'){let h='';for(let i=x+4;i<=x+w-4;i+=4)h+=`M${i} ${y+3}V${y+d-3}`;
     return R(x,y,w,d,'#efe9df',1.5,st+' fill-opacity=".7"')+`<path d="${h}" stroke="#8d8478" stroke-width=".7" fill="none"/><path d="M${x+1} 0H${x+w-1}" stroke="${INK}" stroke-width="1.6" stroke-linecap="round" fill="none"/>`}
