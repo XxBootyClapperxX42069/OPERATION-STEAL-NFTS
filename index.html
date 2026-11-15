@@ -41,6 +41,7 @@ h1{font:600 24px/1.1 var(--display);margin:2px 0 0;text-wrap:balance}
 .chip{flex:none;height:40px;padding:0 16px;border-radius:20px;background:var(--panel);white-space:nowrap;font-weight:500}
 .chip[aria-pressed="true"]{background:var(--accent)}
 .chip.save{background:var(--gold);color:var(--ink)}
+.chip.pick{background:none;border:1px solid var(--gold);color:var(--gold)}
 
 .stage{flex:1;min-height:0;position:relative;margin-inline:max(8px,env(safe-area-inset-left,0px)) max(8px,env(safe-area-inset-right,0px));
   background:var(--paper);border-radius:18px;overflow:hidden}
@@ -118,19 +119,36 @@ input{font:inherit;color:var(--fg);background:var(--panel-2);border:1px solid va
 
 <script>
 'use strict';
-/* ---------- Floor plan, in inches. Scaled from the queen bed (60 x 80) in the original plan. ---------- */
-const WALLS=[[0,0,106,0],[0,0,0,137],[0,137,59,137],[59,137,59,147],[59,183,59,316],[59,316,324,316],[324,60,324,316],
-  [106,60,324,60],[106,0,106,60],[59,199,98,199],[98,199,98,244],[59,244,102,244],[132,244,177,244],[139,199,177,199],
-  [139,199,139,244],[177,244,177,251],[177,283,177,316],[177,199,184,199],[216,199,324,199],[216,199,216,232]];
-const THIN=[[177,201,177,244],[216,232,324,232],[294,199,294,232]];
-const FIX=[{r:[4,4,102,26],n:'the kitchen counter'},{r:[4,26,26,94],n:'the kitchen counter'},{r:[4,96,36,134],n:'the fridge'},
-  {r:[66,208,92,236],n:'the washer/dryer'},{r:[62,250,92,312],n:'the tub'},{r:[108,286,122,306],n:'the toilet'},{r:[132,290,174,313],n:'the vanity'}];
-const DOORS=[{r:[59,147,95,183],n:'the entry door'},{r:[184,167,216,199],n:'the bedroom door'},{r:[184,201,216,225],n:'the bedroom door'},
-  {r:[179,251,203,283],n:'the bathroom door'},{r:[102,216,132,244],n:'the bathroom door'}];
-const ROOMS=[[0,0,106,137],[59,60,324,316]];
-const VIEWS={all:[-8,-8,340,332],living:[52,52,280,156],bed:[170,192,162,132]};
+/* ---------- Floor plans, in inches. ---------- */
 const segRect=(s,t)=>[Math.min(s[0],s[2])-t/2,Math.min(s[1],s[3])-t/2,Math.max(s[0],s[2])+t/2,Math.max(s[1],s[3])+t/2];
-const BLOCK=[...WALLS.map(s=>({r:segRect(s,4),n:'a wall'})),...THIN.map(s=>({r:segRect(s,1.5),n:'the closet'})),...FIX];
+/* B1: Jr. 1 bedroom, 396 sq ft interior + 54 sq ft balcony. Scaled at 2 px per inch from the developer's
+   drawing, which makes their drawn queen bed 60 x 80 and the interior about 396 sq ft. */
+const B1={id:'b1',name:'B1 Jr. 1 bed',chip:'B1 · 396 sq ft',size:'396 sq ft interior, 54 sq ft balcony',first:'builder',thinName:'the bedroom sliding doors',
+  WALLS:[],THIN:[[118.5,105.5,230,105.5]],
+  SOLID:[[-10,-11,309,0],[-10,0,28.5,24],[-10,172,311,183],[-10,136,28.5,172],[298.5,0,309,94],[298.5,88,339,98],[330,98,339,102],[330,134,339,158],
+    [300,149,339,158],[300,158,311,183],[113.5,0,118.5,16],[113.5,92,118.5,107],[230,0,235,107],[235,94,261,98],[293,94,298.5,98]],
+  GLASS:[[-10,24,0,136],[113.5,16,118.5,92]],
+  FIX:[{r:[28.5,149,183.5,172],n:'the kitchen counter'},{r:[184.5,149,232,172],n:'the closet'},{r:[234.5,149,299.5,172],n:'the washer/dryer'},
+    {r:[235,0,298.5,30],n:'the tub'},{r:[237,36,268,56],n:'the toilet'},{r:[237,64,258,92],n:'the vanity'}],
+  DOORS:[{r:[298,102,330,134],n:'the entry door'},{r:[261,98,293,120],n:'the bathroom door'},{r:[184.5,137,299.5,149],n:'the closet and laundry doors'}],
+  ROOMS:[[0,0,300,172],[300,98,330,149],[-86,22,-10,138]],
+  VIEWS:{all:[-92,-16,436,204],living:[-8,-6,130,160],bed:[110,-6,128,118]}};
+/* Original plan: no size given, scaled from the queen bed in the first screenshot. */
+const ORIG={id:'orig',name:'Original 1 bed',chip:'Original · ~570 sq ft',size:'about 570 sq ft, estimated from the bed',first:'wall',thinName:'the closet',
+  WALLS:[[0,0,106,0],[0,0,0,137],[0,137,59,137],[59,137,59,147],[59,183,59,316],[59,316,324,316],[324,60,324,316],
+  [106,60,324,60],[106,0,106,60],[59,199,98,199],[98,199,98,244],[59,244,102,244],[132,244,177,244],[139,199,177,199],
+  [139,199,139,244],[177,244,177,251],[177,283,177,316],[177,199,184,199],[216,199,324,199],[216,199,216,232]],THIN:[[177,201,177,244],[216,232,324,232],[294,199,294,232]],SOLID:[],GLASS:[],
+  FIX:[{r:[4,4,102,26],n:'the kitchen counter'},{r:[4,26,26,94],n:'the kitchen counter'},{r:[4,96,36,134],n:'the fridge'},
+  {r:[66,208,92,236],n:'the washer/dryer'},{r:[62,250,92,312],n:'the tub'},{r:[108,286,122,306],n:'the toilet'},{r:[132,290,174,313],n:'the vanity'}],
+  DOORS:[{r:[59,147,95,183],n:'the entry door'},{r:[184,167,216,199],n:'the bedroom door'},{r:[184,201,216,225],n:'the bedroom door'},
+  {r:[179,251,203,283],n:'the bathroom door'},{r:[102,216,132,244],n:'the bathroom door'}],
+  ROOMS:[[0,0,106,137],[59,60,324,316]],VIEWS:{all:[-8,-8,340,332],living:[52,52,280,156],bed:[170,192,162,132]}};
+const PLANS={b1:B1,orig:ORIG};
+let plan=B1,BLOCK=[];
+function usePlan(id){plan=PLANS[id]||B1;
+  BLOCK=[...plan.WALLS.map(s=>({r:segRect(s,4),n:'a wall'})),...plan.SOLID.map(r=>({r,n:'a wall'})),...plan.GLASS.map(r=>({r,n:'the glass wall'})),
+    ...plan.THIN.map(s=>({r:segRect(s,1.5),n:plan.thinName})),...plan.FIX]}
+usePlan('b1');
 
 /* ---------- Catalog. w = width, d = depth (head/back is the top edge before rotating). ---------- */
 const CAT={
@@ -154,7 +172,7 @@ const CAT={
 };
 const P=(type,x,y,rot=0,o={})=>({type,x,y,rot,...o});
 const BEDROOM_Q=[P('queen',245,281,270),P('nightstand',214,242),P('dresser',312,281,90)];
-const PRESETS={
+ORIG.presets={
   wall:{name:'Along the wall',items:[P('desk',158,77,0,{w:96,d:26}),P('chair',158,101),P('dining',174,133),P('chair',183,111),P('chair',166,155),
     P('tv65',270,71),P('sectional',274.5,177,180),P('chaise',301,132.5,180),...BEDROOM_Q]},
   split:{name:'Split the room',items:[P('tv65',313,121,90),P('sectional',215,121,270),P('chaise',259.5,94.5,270),P('desk',150,77,0,{w:72,d:26}),
@@ -163,18 +181,25 @@ const PRESETS={
     P('chair',160,101),P('dining',140,165),P('chair',140,143),P('chair',140,187),P('king',282,274,90)]}
 };
 
+const B1_LIVING=[P('rug',60,64,90),P('sofa',18,66.5,270,{w:70}),P('armchair',63,16),P('coffee',62,68,90),P('tv55',105.5,54,90)];
+B1.presets={
+  builder:{name:'Builder plan',items:[...B1_LIVING,P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]},
+  king:{name:'King bedroom',items:[...B1_LIVING,P('king',174,40),P('nightstand',127,9,90),P('nightstand',221,9,90)]},
+  desk:{name:'Desk nook',items:[P('sofa',18,66.5,270,{w:70}),P('desk',72,12,0,{w:48,d:24}),P('chair',72,34),P('tv55',105.5,60,90),
+    P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]}
+};
 /* ---------- State ---------- */
 const $=s=>document.querySelector(s), svg=$('#plan'), dock=$('#dock'), scrim=$('#scrim');
 const store={get(k,f){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch(e){return f}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-let uid=1, items=[], sel=null, layout='wall', edited=false, undo=[], redo=[];
-let saved=store.get('fp.saved',[]), snapOn=true, gridOn=true, want=VIEWS.all.slice(), vb=[0,0,1,1];
+let uid=1, items=[], sel=null, layout=plan.first, edited=false, undo=[], redo=[];
+let saved=store.get('fp.saved',[]), snapOn=true, gridOn=true, want=plan.VIEWS.all.slice(), vb=[0,0,1,1];
 const clone=a=>JSON.parse(JSON.stringify(a));
 const fresh=list=>clone(list).map(i=>({...i,id:uid++}));
 const def=it=>CAT[it.type]||CAT.custom, W=it=>it.w??def(it).w, D=it=>it.d??def(it).d;
 const nameOf=it=>it.name||def(it).n;
 const box=it=>{const s=it.rot%180!==0,hw=(s?D(it):W(it))/2,hh=(s?W(it):D(it))/2;return[it.x-hw,it.y-hh,it.x+hw,it.y+hh]};
 const hit=(a,b,e=.5)=>a[0]<b[2]-e&&a[2]>b[0]+e&&a[1]<b[3]-e&&a[3]>b[1]+e;
-const inside=(x,y)=>ROOMS.some(r=>x>=r[0]-.5&&x<=r[2]+.5&&y>=r[1]-.5&&y<=r[3]+.5);
+const inside=(x,y)=>plan.ROOMS.some(r=>x>=r[0]-.5&&x<=r[2]+.5&&y>=r[1]-.5&&y<=r[3]+.5);
 const solid=it=>def(it).k!=='rug';
 
 function check(it){
@@ -183,7 +208,7 @@ function check(it){
   if(!solid(it))return{s:'ok',m:'Rugs sit under everything'};
   const b=BLOCK.find(o=>hit(a,o.r)); if(b)return{s:'bad',m:'Overlaps '+b.n};
   const o=items.find(q=>q!==it&&solid(q)&&hit(a,box(q))); if(o)return{s:'bad',m:'Overlaps the '+nameOf(o).toLowerCase()};
-  const d=DOORS.find(q=>hit(a,q.r)); if(d)return{s:'warn',m:'Blocks '+d.n};
+  const d=plan.DOORS.find(q=>hit(a,q.r)); if(d)return{s:'warn',m:'Blocks '+d.n};
   let g=Infinity;
   for(const r of [...BLOCK.map(q=>q.r),...items.filter(q=>q!==it&&solid(q)).map(box)]){
     if(r[1]<a[3]-.5&&r[3]>a[1]+.5){if(r[2]<=a[0]+.5)g=Math.min(g,Math.max(0,a[0]-r[2]));if(r[0]>=a[2]-.5)g=Math.min(g,Math.max(0,r[0]-a[2]))}
@@ -222,20 +247,12 @@ function label(it){
   const a=box(it),bw=a[2]-a[0],bh=a[3]-a[1],est=t.length*3.1+2,k=def(it).k;
   let r;if(est<=bw)r=-it.rot;else if(est<=bh)r=-it.rot-90;else return'';
   const light=k==='bed'||k==='tv'||k==='rug';
-  const dy=k==='tv'&&r===-it.rot&&it.rot===0?3.5:(k==='bed'?0:0);
-  return`<text transform="rotate(${r})" y="${dy}" text-anchor="middle" dominant-baseline="central" font-size="5.2" font-weight="500" fill="${light?INK:'#f4f0e7'}" pointer-events="none">${esc(t)}</text>`;
+  return`<text transform="translate(0 ${k==='tv'?2.8:0}) rotate(${r})" text-anchor="middle" dominant-baseline="central" font-size="5.2" font-weight="500" fill="${light?INK:'#f4f0e7'}" pointer-events="none">${esc(t)}</text>`;
 }
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function staticPlan(){
-  const L=(s,w,c=INK)=>`<path d="M${s[0]} ${s[1]}L${s[2]} ${s[3]}" stroke="${c}" stroke-width="${w}" stroke-linecap="square" fill="none"/>`;
-  const fr=(r,f,ex='')=>`<rect x="${r[0]}" y="${r[1]}" width="${r[2]-r[0]}" height="${r[3]-r[1]}" fill="${f}" ${ex}/>`;
-  const fx=`stroke="${INK}" stroke-width=".8"`;
-  const txt=(t,x,y,s=7,ls=5)=>`<text x="${x}" y="${y}" font-family="Lora,Georgia,serif" font-size="${s}" letter-spacing="${ls}" fill="#8d8478" text-anchor="middle" pointer-events="none">${t}</text>`;
-  let s=`<defs><pattern id="g" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M12 0H0V12" fill="none" stroke="#d9d1c2" stroke-width=".4"/></pattern></defs>`;
-  s+=fr([0,0,106,137],'#f4f0e7')+fr([59,60,324,316],'#f4f0e7');
+ORIG.art=function(h){const{fr,fx,txt,dr}=h,FIX=this.FIX;let s='';
   s+=fr([26,26,104,135],'#e6d9c6')+fr([61,246,175,314],'#d5e0da')+fr([61,201,96,242],'#e6d9c6')+fr([141,201,175,242],'#e6d9c6')
     +fr([179,201,322,314],'#ebe4d8')+fr([218,201,322,231],'#e6d9c6');
-  s+=`<g id="gridl">${fr([0,0,106,137],'url(#g)')+fr([59,60,324,316],'url(#g)')}</g>`;
   s+=txt('Kitchen',68,84,9,6)+txt('Entry',96,166,6)+txt('Living',120,188,6)+txt('Bath',128,272,6)+txt('Bedroom',262,246,8,6)+txt('Closet',268,219,5)+txt('Closet',158,224,4,2);
   // fixtures
   s+=fr(FIX[0].r,'#f8f5ee',fx)+fr([50,7,74,23],'#f8f5ee',fx)+`<ellipse cx="62" cy="15" rx="7" ry="4.5" fill="#f8f5ee" ${fx}/>`+fr([78,7,98,23],'#f8f5ee',fx)+`<circle cx="88" cy="15" r="3.5" fill="#f8f5ee" ${fx}/>`;
@@ -246,10 +263,37 @@ function staticPlan(){
   s+=`<rect x="109" y="286" width="12" height="8" rx="2" fill="#f8f5ee" ${fx}/><ellipse cx="115" cy="299" rx="5.5" ry="7" fill="#f8f5ee" ${fx}/>`;
   s+=fr(FIX[6].r,'#f8f5ee',fx)+`<circle cx="153" cy="301" r="2.5" fill="#f8f5ee" ${fx}/>`;
   // doors
-  const dr=`fill="none" stroke="#6f675d" stroke-width=".7"`;
-  s+=`<path d="M59 147H95A36 36 0 0 1 59 183" ${dr}/><path d="M216 199V167A32 32 0 0 0 184 199" ${dr}/>`
+    s+=`<path d="M59 147H95A36 36 0 0 1 59 183" ${dr}/><path d="M216 199V167A32 32 0 0 0 184 199" ${dr}/>`
     +`<path d="M102 244V274A30 30 0 0 0 132 244" ${dr}/><path d="M177 251H145A32 32 0 0 0 177 283" ${dr}/>`;
-  s+=THIN.map(t=>L(t,1.5,'#4a433d')).join('')+WALLS.map(w=>L(w,4)).join('');
+  return s};
+B1.art=function(h){const{fr,fx,txt,dr}=h;let s='';
+  const lab=(t,x,y)=>`<text x="${x}" y="${y}" font-size="4.5" text-anchor="middle" fill="${INK}" pointer-events="none">${t}</text>`;
+  s+=fr([-86,22,-10,138],'#ece6da',`stroke="#6f675d" stroke-width="1"`)+fr([-83,25,-10,135],'none',`stroke="#6f675d" stroke-width=".5"`);
+  s+=fr([235,0,298.5,94],'#d5e0da')+fr([118.5,0,230,104],'#ebe4d8');
+  s+=txt('Balcony',-48,84,6,3)+txt('Living',52,124,6,4)+txt('Kitchen',128,140,6,4)+txt('Bedroom',174,98,6,4)+txt('Bath',277,66,5,3)+txt('Entry',286,128,5,3);
+  // kitchen run, closet, laundry
+  s+=fr([28.5,149,183.5,172],'#f8f5ee',fx)+[52,73,97,112,135,161].map(x=>`<path d="M${x} 149V172" ${fx} fill="none"/>`).join('');
+  s+=lab('P',40,163)+lab('DW',63,163)+`<rect x="77" y="153" width="16" height="13" rx="2" fill="#f8f5ee" ${fx}/>`+lab('F',172,163);
+  s+=[[118,155],[129,155],[118,166],[129,166]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#f8f5ee" ${fx}/>`).join('');
+  s+=fr([184.5,149,232,172],'#e6d9c6',fx)+fr([234.5,149,267,172],'#f8f5ee',fx)+fr([267,149,299.5,172],'#f8f5ee',fx)+lab('D',251,164)+lab('W',283,164);
+  s+=`<path d="M184.5 149l12-8 12 8 12-8 11.5 8M234.5 149l16-8 16.5 8 16-8 16.5 8" ${dr}/>`;
+  // bath
+  s+=`<rect x="235" y="0" width="63.5" height="30" rx="4" fill="#f8f5ee" ${fx}/><circle cx="266" cy="15" r="2" fill="#f8f5ee" ${fx}/>`;
+  s+=`<rect x="237" y="38" width="9" height="16" rx="2" fill="#f8f5ee" ${fx}/><ellipse cx="256" cy="46" rx="11" ry="7.5" fill="#f8f5ee" ${fx}/>`;
+  s+=fr([237,64,258,92],'#f8f5ee',fx)+`<circle cx="247" cy="78" r="3" fill="#f8f5ee" ${fx}/>`;
+  s+=`<path d="M293 96V64A32 32 0 0 0 261 96" ${dr}/><path d="M330 134H298A32 32 0 0 1 330 102" ${dr}/>`;
+  return s};
+function staticPlan(){
+  const L=(s,w,c=INK)=>`<path d="M${s[0]} ${s[1]}L${s[2]} ${s[3]}" stroke="${c}" stroke-width="${w}" stroke-linecap="square" fill="none"/>`;
+  const fr=(r,f,ex='')=>`<rect x="${r[0]}" y="${r[1]}" width="${r[2]-r[0]}" height="${r[3]-r[1]}" fill="${f}" ${ex}/>`;
+  const fx=`stroke="${INK}" stroke-width=".8"`,dr=`fill="none" stroke="#6f675d" stroke-width=".7"`;
+  const txt=(t,x,y,s=7,ls=5)=>`<text x="${x}" y="${y}" font-family="Lora,Georgia,serif" font-size="${s}" letter-spacing="${ls}" fill="#8d8478" text-anchor="middle" pointer-events="none">${t}</text>`;
+  let s=`<defs><pattern id="g" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M12 0H0V12" fill="none" stroke="#d9d1c2" stroke-width=".4"/></pattern></defs>`;
+  s+=plan.ROOMS.map(r=>fr(r,'#f4f0e7')).join('');
+  const art=plan.art({fr,fx,txt,dr});
+  s+=`<g id="gridl">${plan.ROOMS.map(r=>fr(r,'url(#g)')).join('')}</g>`+art;
+  s+=plan.GLASS.map(r=>fr(r,'#cbd6d0',`stroke="${INK}" stroke-width=".7"`)).join('')+plan.THIN.map(t=>L(t,1.5,'#4a433d')).join('')
+    +plan.WALLS.map(w=>L(w,4)).join('')+plan.SOLID.map(r=>fr(r,INK)).join('');
   return s;
 }
 function render(){
@@ -273,7 +317,7 @@ const ICON={rot:'<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><pat
   del:'<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>'};
 function renderDock(){
   const it=items.find(i=>i.id===sel);
-  $('#sub').textContent=(layout&&PRESETS[layout]?PRESETS[layout].name:layout||'Custom')+(edited?' · edited':'');
+  $('#sub').textContent=plan.name+' · '+(layout&&plan.presets[layout]?plan.presets[layout].name:layout||'Custom')+(edited?' · edited':'');
   $('#undo').disabled=!undo.length;$('#redo').disabled=!redo.length;
   if(!it){
     const bad=items.filter(i=>check(i).s==='bad').length,warn=items.filter(i=>check(i).s==='warn').length;
@@ -287,16 +331,18 @@ function renderDock(){
     <div class="stat"><i class="dot ${c.s==='ok'?'':c.s}"></i>${c.m}</div>${sizes}
     <div class="row"><button class="act" data-a="rot">${ICON.rot}Rotate</button><button class="act" data-a="dup">${ICON.dup}Duplicate</button><button class="act del" data-a="del" aria-label="Delete">${ICON.del}</button></div>`;
 }
+const mine=s=>(s.plan||'orig')===plan.id;
 function renderLayouts(){
-  $('#layouts').innerHTML=Object.entries(PRESETS).map(([k,p])=>`<button class="chip" data-p="${k}" aria-pressed="${layout===k}">${p.name}</button>`).join('')
-    +saved.map((s,i)=>`<button class="chip" data-s="${i}" aria-pressed="${layout===s.name}">${esc(s.name)}</button>`).join('')
+  $('#layouts').innerHTML=`<button class="chip pick" data-a="plan">${plan.chip} ▾</button>`+Object.entries(plan.presets).map(([k,p])=>`<button class="chip" data-p="${k}" aria-pressed="${layout===k}">${p.name}</button>`).join('')
+    +saved.map((s,i)=>mine(s)&&`<button class="chip" data-s="${i}" aria-pressed="${layout===s.name}">${esc(s.name)}</button>`).filter(Boolean).join('')
     +`<button class="chip save" data-a="save">+ Save</button>`;
 }
 
 /* ---------- Edits and history ---------- */
 function commit(mark=true){undo.push(prev);if(undo.length>80)undo.shift();redo=[];if(mark)edited=true;snapshot()}
 let prev='[]';
-function snapshot(){prev=JSON.stringify(items);store.set('fp.cur',{items,layout,edited})}
+let states=store.get('fp.cur2',{}).states||{};
+function snapshot(){prev=JSON.stringify(items);states[plan.id]={items,layout,edited};store.set('fp.cur2',{plan:plan.id,states})}
 function restore(json){items=JSON.parse(json);if(!items.some(i=>i.id===sel))sel=null;edited=true;snapshot();render()}
 function load(key,list,name){undo.push(prev);redo=[];items=fresh(list);sel=null;layout=name||key;edited=false;snapshot();renderLayouts();render()}
 function freeSpot(it,cx=vb[0]+vb[2]/2,cy=vb[1]+vb[3]/2,step=3,max=240){
@@ -369,15 +415,16 @@ function markView(v){document.querySelectorAll('#views .fb').forEach(b=>b.setAtt
 new ResizeObserver(applyView).observe(svg);
 
 /* ---------- Buttons ---------- */
-$('#views').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(!b)return;want=VIEWS[b.dataset.view].slice();applyView();markView(b.dataset.view)});
+$('#views').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(!b)return;want=plan.VIEWS[b.dataset.view].slice();applyView();markView(b.dataset.view)});
 $('#snap').onclick=e=>{snapOn=!snapOn;e.currentTarget.setAttribute('aria-pressed',snapOn)};
 $('#grid').onclick=e=>{gridOn=!gridOn;e.currentTarget.setAttribute('aria-pressed',gridOn);render()};
 $('#undo').onclick=()=>{if(!undo.length)return;redo.push(prev);restore(undo.pop())};
 $('#redo').onclick=()=>{if(!redo.length)return;undo.push(prev);restore(redo.pop())};
-$('#reset').onclick=()=>{const s=saved.find(q=>q.name===layout);if(PRESETS[layout])load(layout,PRESETS[layout].items);else if(s)load(null,s.items,s.name);else load('wall',PRESETS.wall.items)};
+$('#reset').onclick=()=>{const s=saved.find(q=>mine(q)&&q.name===layout);if(plan.presets[layout])load(layout,plan.presets[layout].items);else if(s)load(null,s.items,s.name);else load(plan.first,plan.presets[plan.first].items)};
 $('#layouts').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-  if(b.dataset.p)load(b.dataset.p,PRESETS[b.dataset.p].items);
+  if(b.dataset.p)load(b.dataset.p,plan.presets[b.dataset.p].items);
   else if(b.dataset.s){const s=saved[+b.dataset.s];load(null,s.items,s.name)}
+  else if(b.dataset.a==='plan')openPlans();
   else openSave()});
 dock.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const it=items.find(i=>i.id===sel),a=b.dataset.a;
   if(a==='add')return openAdd();
@@ -412,21 +459,30 @@ function openAdd(){
     add('custom',{w,d,name:$('#c-name').value.trim()||'Custom piece'})});
 }
 function openSave(){
-  sheet('Saved layouts',`<form class="custom" id="sf"><label>Name this layout<input id="s-name" maxlength="24" value="${esc(PRESETS[layout]?'My layout '+(saved.length+1):layout||'My layout')}"></label><button class="act">Save current layout</button></form>
-    <div style="margin-top:14px">${saved.map((s,i)=>`<div class="saved"><b>${esc(s.name)}</b><button class="chip" data-load="${i}">Open</button><button class="chip" data-rm="${i}">Delete</button></div>`).join('')||'<p class="note">Nothing saved yet. Saved layouts stay on this device.</p>'}</div>`);
-  $('#sf').addEventListener('submit',e=>{e.preventDefault();const n=$('#s-name').value.trim();if(!n||PRESETS[n])return;
-    const rec={name:n,items:items.map(({id,...r})=>r)},i=saved.findIndex(s=>s.name===n);if(i>=0)saved[i]=rec;else saved.push(rec);
+  sheet('Saved layouts',`<form class="custom" id="sf"><label>Name this layout<input id="s-name" maxlength="24" value="${esc(plan.presets[layout]?'My layout '+(saved.filter(mine).length+1):layout||'My layout')}"></label><button class="act">Save current layout</button></form>
+    <div style="margin-top:14px">${saved.map((s,i)=>mine(s)?`<div class="saved"><b>${esc(s.name)}</b><button class="chip" data-load="${i}">Open</button><button class="chip" data-rm="${i}">Delete</button></div>`:'').join('')||'<p class="note">Nothing saved yet. Saved layouts stay on this device.</p>'}</div>`);
+  $('#sf').addEventListener('submit',e=>{e.preventDefault();const n=$('#s-name').value.trim();if(!n||plan.presets[n])return;
+    const rec={name:n,plan:plan.id,items:items.map(({id,...r})=>r)},i=saved.findIndex(s=>mine(s)&&s.name===n);if(i>=0)saved[i]=rec;else saved.push(rec);
     store.set('fp.saved',saved);layout=n;edited=false;snapshot();renderLayouts();render();closeSheet()});
   scrim.querySelector('.body').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
     if(b.dataset.load){const s=saved[+b.dataset.load];load(null,s.items,s.name);closeSheet()}
     else if(b.dataset.rm){saved.splice(+b.dataset.rm,1);store.set('fp.saved',saved);renderLayouts();openSave()}});
 }
 
+function openPlans(){
+  sheet('Floor plans',Object.values(PLANS).map(p=>`<div class="saved"><b>${p.name}<br><span style="color:var(--muted);font-weight:400;font-size:13px">${p.size}</span></b>
+    <button class="chip" data-plan="${p.id}" aria-pressed="${p===plan}">${p===plan?'Open now':'Open'}</button></div>`).join('')
+    +'<p class="note">Each floor plan keeps its own furniture and saved layouts.</p>');
+  scrim.querySelector('.body').addEventListener('click',e=>{const b=e.target.closest('[data-plan]');if(b){openPlan(b.dataset.plan);closeSheet()}});
+}
+function openPlan(id){
+  usePlan(id);svg.innerHTML='';undo=[];redo=[];sel=null;
+  const st=states[plan.id];
+  if(st&&Array.isArray(st.items)&&st.items.length){items=fresh(st.items);layout=st.layout||plan.first;edited=!!st.edited}
+  else{items=fresh(plan.presets[plan.first].items);layout=plan.first;edited=false}
+  want=plan.VIEWS.all.slice();snapshot();applyView();markView('all');renderLayouts();render();
+}
+
 /* ---------- Boot ---------- */
-(function(){
-  const cur=store.get('fp.cur',null);
-  if(cur&&Array.isArray(cur.items)&&cur.items.length){items=fresh(cur.items);layout=cur.layout||'wall';edited=!!cur.edited}
-  else items=fresh(PRESETS.wall.items);
-  prev=JSON.stringify(items);applyView();markView('all');renderLayouts();render();
-})();
+openPlan(PLANS[store.get('fp.cur2',{}).plan]?store.get('fp.cur2',{}).plan:'b1');
 </script>
