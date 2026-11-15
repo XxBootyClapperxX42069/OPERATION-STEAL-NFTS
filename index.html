@@ -169,17 +169,14 @@ const CAT={
 };
 const P=(type,x,y,rot=0,o={})=>({type,x,y,rot,...o});
 const B1_LIVING=[P('rug',60,64,90),P('sofa',18,66.5,270,{w:70}),P('armchair',63,16),P('coffee',62,68,90),P('tv55',105.5,54,90)];
-const B1_REC=[P('ikeadesk',70,11.8),P('mirra',70,38),P('endtable',9,33),P('loveseat',18,72,270),P('tvslim',107.5,58,90),P('trash',100,97),
-  P('custom',248,101.5,0,{w:24,d:7,name:'Shoes'}),P('round',-48,80,0,{w:24,d:24,name:'Bistro'}),P('chair',-48,54),P('chair',-48,106)];
+const B1_REC=[P('loveseat',51,88,0),P('endtable',90,97),P('rack',104.5,46,90),
+  P('custom',248,101.5,0,{w:24,d:7,name:'Shoes'}),P('round',-48,80,0,{w:24,d:24,name:'Bistro'}),P('chair',-48,54),P('chair',-48,106),
+  P('king',174,40),P('nightstand',127,9,90),P('nightstand',221,9,90)];
 B1.presets={
-  rec:{name:'Recommended · king',items:[...B1_REC,P('king',174,40),P('nightstand',127,9,90),P('nightstand',221,9,90)]},
-  recq:{name:'Recommended · queen + rack',items:[...B1_REC,P('queen',200,40),P('nightstand',161,8),P('rack',127.5,30,90)]},
+  rec:{name:'Best · IKEA desk',items:[P('ikeadesk',70,11.8),P('mirra',70,38),P('trash',38,31),...B1_REC]},
+  recl:{name:'Best · L desk',items:[P('ldesk',70.25,24),P('mirra',74,38),P('trash',38,56),...B1_REC]},
   builder:{name:'Builder plan',items:[...B1_LIVING,P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]},
-  king:{name:'King bedroom',items:[...B1_LIVING,P('king',174,40),P('nightstand',127,9,90),P('nightstand',221,9,90)]},
-  desk:{name:'Desk nook',items:[P('sofa',18,66.5,270,{w:70}),P('desk',72,12,0,{w:48,d:24}),P('chair',72,34),P('tv55',105.5,60,90),
-    P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]},
-  ldesk:{name:'L desk office',items:[P('loveseat',18,78,270),P('ldesk',70.25,24),P('mirra',72,38),P('tvslim',107.5,58,90),P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]},
-  ikea:{name:'IKEA triple monitor',items:[P('sofa',18,66.5,270,{w:70}),P('ikeadesk',70,11.8),P('mirra',70,38),P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]}
+  king:{name:'King bedroom',items:[...B1_LIVING,P('king',174,40),P('nightstand',127,9,90),P('nightstand',221,9,90)]}
 };
 /* ---------- State ---------- */
 const $=s=>document.querySelector(s), svg=$('#plan'), dock=$('#dock'), scrim=$('#scrim');
@@ -264,8 +261,8 @@ B1.art=function(h){const{fr,fx,txt,dr}=h;let s='';
   s+=fr([235,0,298.5,94],'#d5e0da')+fr([118.5,0,230,104],'#ebe4d8');
   s+=txt('Balcony',-48,84,6,3)+txt('Living',52,124,6,4)+txt('Kitchen',128,140,6,4)+txt('Bedroom',174,98,6,4)+txt('Bath',277,66,5,3)+txt('Entry',286,128,5,3);
   // kitchen run, closet, laundry
-  s+=fr([28.5,149,183.5,172],'#f8f5ee',fx)+[52,73,97,112,135,161].map(x=>`<path d="M${x} 149V172" ${fx} fill="none"/>`).join('');
-  s+=lab('P',40,163)+lab('DW',63,163)+`<rect x="77" y="153" width="16" height="13" rx="2" fill="#f8f5ee" ${fx}/>`+lab('F',172,163);
+  s+=fr([28.5,149,183.5,172],'#f8f5ee',fx)+[73,97,112,135,161].map(x=>`<path d="M${x} 149V172" ${fx} fill="none"/>`).join('');
+  s+=fr([28.5,149,73,172],'#cdb9a3',fx)+fr([31,151,70.5,154.5],INK)+lab('Built-in TV',50.75,165)+`<rect x="77" y="153" width="16" height="13" rx="2" fill="#f8f5ee" ${fx}/>`+lab('F',172,163);
   s+=[[118,155],[129,155],[118,166],[129,166]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#f8f5ee" ${fx}/>`).join('');
   s+=fr([184.5,149,232,172],'#e6d9c6',fx)+fr([234.5,149,267,172],'#f8f5ee',fx)+fr([267,149,299.5,172],'#f8f5ee',fx)+lab('D',251,164)+lab('W',283,164);
   s+=`<path d="M184.5 149l12-8 12 8 12-8 11.5 8M234.5 149l16-8 16.5 8 16-8 16.5 8" ${dr}/>`;
