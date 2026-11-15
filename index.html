@@ -123,7 +123,7 @@ input{font:inherit;color:var(--fg);background:var(--panel-2);border:1px solid va
 const segRect=(s,t)=>[Math.min(s[0],s[2])-t/2,Math.min(s[1],s[3])-t/2,Math.max(s[0],s[2])+t/2,Math.max(s[1],s[3])+t/2];
 /* B1: Jr. 1 bedroom, 396 sq ft interior + 54 sq ft balcony. Scaled at 2 px per inch from the developer's
    drawing, which makes their drawn queen bed 60 x 80 and the interior about 396 sq ft. */
-const B1={id:'b1',name:'B1 Jr. 1 bed',chip:'B1 · 396 sq ft',size:'396 sq ft interior, 54 sq ft balcony',first:'builder',thinName:'the bedroom sliding doors',
+const B1={id:'b1',name:'B1 Jr. 1 bed',chip:'B1 · 396 sq ft',size:'396 sq ft interior, 54 sq ft balcony',first:'rec',thinName:'the bedroom sliding doors',
   WALLS:[],THIN:[[118.5,105.5,230,105.5]],
   SOLID:[[-10,-11,309,0],[-10,0,28.5,24],[-10,172,311,183],[-10,136,28.5,172],[298.5,0,309,94],[298.5,88,339,98],[330,98,339,102],[330,134,339,158],
     [300,149,339,158],[300,158,311,183],[113.5,0,118.5,16],[113.5,92,118.5,107],[230,0,235,107],[235,94,261,98],[293,94,298.5,98]],
@@ -168,7 +168,11 @@ const CAT={
 };
 const P=(type,x,y,rot=0,o={})=>({type,x,y,rot,...o});
 const B1_LIVING=[P('rug',60,64,90),P('sofa',18,66.5,270,{w:70}),P('armchair',63,16),P('coffee',62,68,90),P('tv55',105.5,54,90)];
+const B1_REC=[P('ikeadesk',70,11.8),P('mirra',70,38),P('endtable',9,33),P('loveseat',18,72,270),P('tvdresser',104.5,58,90),P('trash',100,97),
+  P('custom',248,101.5,0,{w:24,d:7,name:'Shoes'}),P('round',-48,80,0,{w:24,d:24,name:'Bistro'}),P('chair',-48,54),P('chair',-48,106)];
 B1.presets={
+  rec:{name:'Recommended · king',items:[...B1_REC,P('king',174,40),P('nightstand',127,9,90),P('nightstand',221,9,90)]},
+  recq:{name:'Recommended · queen + rack',items:[...B1_REC,P('queen',200,40),P('nightstand',161,8),P('rack',127.5,30,90)]},
   builder:{name:'Builder plan',items:[...B1_LIVING,P('queen',174,40),P('nightstand',130,8),P('nightstand',218,8)]},
   king:{name:'King bedroom',items:[...B1_LIVING,P('king',174,40),P('nightstand',127,9,90),P('nightstand',221,9,90)]},
   desk:{name:'Desk nook',items:[P('sofa',18,66.5,270,{w:70}),P('desk',72,12,0,{w:48,d:24}),P('chair',72,34),P('tv55',105.5,60,90),
